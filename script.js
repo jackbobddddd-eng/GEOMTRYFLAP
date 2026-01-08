@@ -13,23 +13,31 @@ canvas.height = window.innerHeight;
 let active = false, score = 0, frames = 0;
 let isWaveMode = false, isHolding = false, isHardMode = false;
 let obstacles = [], stars = [];
-let monsterX = -500;
-let currentScrollSpeed = 6;
-const acceleration = 0.0006; 
+let ship;
 
-// --- PHYSICS ---
+// --- SPEED & SPACING ---
+const INITIAL_SPEED = 6;
+const MAX_SPEED = 22; // Prevents game from breaking at infinite speeds
+let currentScrollSpeed = INITIAL_SPEED;
+const speedIncrement = 0.0016; // Increased for "faster faster" ramp-up
+
+const DISTANCE_BETWEEN_OBSTACLES = 450; 
+let pixelsSinceLastSpawn = 0;
+
+// --- OG PHYSICS ---
 const gravity = 0.5, flapPower = -9, waveSpeed = 7;
+
+// --- CONSISTENT GAP CONFIG ---
+const FIXED_GAP_SIZE = 165; 
 
 const insults = [
     "GEOMETRY IS HARD, ISN'T IT?",
     "FLAP ERROR: 404 SKILL NOT FOUND.",
     "THE STARS ARE LAUGHING AT YOU.",
     "VOID CONSUMES THE WEAK.",
-    "MAYBE STICK TO COLORING BOOKS?",
     "WAS THAT YOUR BEST? TRAGIC."
 ];
 
-// --- BACKGROUND STAR ENGINE ---
 class Star {
     constructor(isDistant) {
         this.x = Math.random() * canvas.width;
@@ -39,7 +47,7 @@ class Star {
         this.color = isDistant ? '#444' : '#888';
     }
     update() {
-        this.x -= this.speed * (currentScrollSpeed / 6);
+        this.x -= this.speed * (currentScrollSpeed / INITIAL_SPEED);
         if (this.x < 0) {
             this.x = canvas.width;
             this.y = Math.random() * canvas.height;
@@ -84,9 +92,14 @@ class Ship {
 class Obstacle {
     constructor(isLong = false) {
         this.x = canvas.width;
+        this.isLong = isLong;
         this.w = isLong ? 450 : 70;
-        this.gap = isLong ? 150 : (isWaveMode ? 260 : 200);
-        this.topH = Math.random() * (canvas.height - this.gap - 150) + 75;
+        this.gap = FIXED_GAP_SIZE;
+        
+        const minTop = 50;
+        const maxTop = canvas.height - this.gap - 50;
+        this.topH = Math.random() * (maxTop - minTop) + minTop;
+
         this.passed = false;
         this.color = isLong ? '#ff0000' : '#f0f';
     }
@@ -104,12 +117,10 @@ function die() {
     active = false;
     overlay.classList.remove('hidden');
     hardFlash.classList.remove('flash-anim');
-    
     const randomInsult = insults[Math.floor(Math.random() * insults.length)];
     document.getElementById('death-title').innerText = "SYSTEM CRASH";
     document.getElementById('death-msg').innerHTML = 
         `<span style="color:#ff0044">${randomInsult}</span><br>SCORE: ${score}`;
-
     const best = localStorage.getItem('best_gf') || 0;
     if (score > best) localStorage.setItem('best_gf', score);
     document.getElementById('high-score').innerText = localStorage.getItem('best_gf');
@@ -123,16 +134,17 @@ function animate() {
     stars.forEach(s => { s.update(); s.draw(); });
 
     frames++;
-    currentScrollSpeed += acceleration;
+    
+    // RAMP UP SPEED
+    if (currentScrollSpeed < MAX_SPEED) {
+        currentScrollSpeed += speedIncrement;
+    }
 
-    // Hard Mode Transition
     if (score >= 20 && !isHardMode) {
         isHardMode = true;
         hardFlash.classList.add('flash-anim');
-        currentScrollSpeed += 1.5;
     }
 
-    // Hybrid Mode Switch
     let modeCheck = Math.floor(score / 10) % 2 !== 0;
     if (modeCheck !== isWaveMode) {
         isWaveMode = modeCheck;
@@ -143,22 +155,16 @@ function animate() {
         setTimeout(() => modeAlert.style.opacity = 0, 1500);
     }
 
-    // Monster Level 5 (Score 50+)
-    if (score >= 50) {
-        if (!isHolding) monsterX += (currentScrollSpeed * 0.82); 
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
-        ctx.shadowBlur = 40; ctx.shadowColor = 'red';
-        ctx.fillRect(monsterX - 150, 0, 150, canvas.height);
-        if (monsterX > ship.x - 15) die();
-    }
-
     ship.update();
     ship.draw();
 
-    let spawnRate = Math.max(45, Math.floor(540 / currentScrollSpeed));
-    if (frames % spawnRate === 0) {
-        const isLong = (isHardMode && isWaveMode && Math.random() < 0.35);
-        obstacles.push(new Obstacle(isLong));
+    pixelsSinceLastSpawn += currentScrollSpeed;
+    if (pixelsSinceLastSpawn >= DISTANCE_BETWEEN_OBSTACLES) {
+        const longExists = obstacles.some(o => o.isLong);
+        let spawnLong = (isHardMode && isWaveMode && !longExists && Math.random() < 0.4);
+        
+        obstacles.push(new Obstacle(spawnLong));
+        pixelsSinceLastSpawn = 0; 
     }
 
     obstacles.forEach((obs, i) => {
@@ -189,7 +195,8 @@ window.addEventListener('keyup', (e) => { if (e.code === 'Space') stopH(); });
 document.getElementById('start-btn').onclick = () => {
     score = 0; frames = 0; active = true; 
     isWaveMode = false; isHardMode = false;
-    currentScrollSpeed = 6; monsterX = -500;
+    currentScrollSpeed = INITIAL_SPEED;
+    pixelsSinceLastSpawn = 0;
     obstacles = []; 
     stars = Array.from({length: 80}, (_, i) => new Star(i < 50));
     ship = new Ship();
