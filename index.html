@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geometry Flap</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="hud">
+        <div class="top-row">
+            <div class="hud-box">SECTOR: GEOMETRY_VOID</div>
+            <div class="hud-box">MODE: <span id="mode-text">FLAP</span></div>
+            <div class="hud-box">BEST: <span id="high-score">0</span></div>
+        </div>
+        <div id="score-main">00</div>
+        <div id="mode-alert">WAVE MODE ACTIVE</div>
+        <div id="hard-mode-flash">HARD MODE ENGAGED</div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="overlay">
+        <h1 id="death-title" class="title-neon">GEOMETRY FLAP</h1>
+        <p id="death-msg">SPACE / CLICK: THRUST (FLAP) | HOLD (WAVE)</p>
+        <button id="start-btn">ENGAGE CORE</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

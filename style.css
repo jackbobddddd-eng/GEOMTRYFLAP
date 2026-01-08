@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
+
+body { 
+    margin: 0; 
+    overflow: hidden; 
+    background: #020205; 
+    font-family: 'Orbitron', sans-serif; 
+}
+
+#hud { 
+    position: absolute; 
+    inset: 0; 
+    pointer-events: none; 
+    padding: 20px; 
+    z-index: 10; 
+    color: #fff; 
+}
+
+.top-row { display: flex; justify-content: space-between; }
+
+.hud-box { 
+    background: rgba(0, 255, 255, 0.1); 
+    border: 1px solid #0ff; 
+    padding: 5px 15px; 
+    font-size: 12px; 
+    text-shadow: 0 0 5px #0ff;
+}
+
+#score-main { 
+    font-size: 80px; 
+    text-align: center; 
+    margin-top: 20px; 
+    text-shadow: 0 0 20px #f0f; 
+    font-weight: 900; 
+}
+
+#mode-text { color: #0ff; transition: color 0.3s; }
+
+#mode-alert { 
+    position: absolute; 
+    top: 30%; 
+    width: 100%; 
+    text-align: center; 
+    font-size: 30px; 
+    color: #ffcc00; 
+    opacity: 0; 
+    transition: 0.5s; 
+    font-weight: 900; 
+}
+
+#hard-mode-flash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 60px;
+    color: #ff0000;
+    text-shadow: 0 0 30px #ff0000;
+    font-weight: 900;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.flash-anim { animation: pulse-red 0.5s ease-in-out 4; }
+
+@keyframes pulse-red {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+canvas { display: block; }
+
+#overlay { 
+    position: absolute; 
+    inset: 0; 
+    background: rgba(0,0,0,0.9); 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 20; 
+    color: #fff; 
+    text-align: center;
+}
+
+#overlay.hidden { display: none; }
+
+.title-neon {
+    font-size: 4rem;
+    color: #fff;
+    text-shadow: 0 0 10px #0ff, 0 0 20px #f0f;
+    letter-spacing: 4px;
+    margin-bottom: 10px;
+}
+
+button { 
+    background: transparent; 
+    border: 2px solid #0ff; 
+    color: #0ff; 
+    padding: 15px 40px; 
+    font-family: inherit; 
+    font-size: 20px; 
+    cursor: pointer; 
+    margin-top: 20px; 
+    transition: 0.3s;
+}
+
+button:hover { 
+    background: #0ff; 
+    color: #000; 
+    box-shadow: 0 0 20px #0ff; 
+}
